@@ -1,0 +1,28 @@
+# Setup
+litp create -t deployment -p /deployments/d1
+litp create -t cluster -p /deployments/d1/clusters/c1
+litp create -t node -p /deployments/d1/clusters/c1/nodes/n1 -o hostname=mn1
+
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth0 -o network_name=services ipaddress=192.168.0.1 device_name=eth0 macaddress=AA:BB:CC:11:22:34 rx_ring_buffer=1000 tx_ring_buffer=1000
+
+let __err_invalid_range --err_type ValidationError --err_message "Value outside range 0 - 2147483647"
+let __err_invalid_value1 --err_type ValidationError --err_message "Invalid value '-1'. Value must be a positive integer"
+let __err_invalid_value2 --err_type ValidationError --err_message "Invalid value 'nope1'. Value must be a positive integer"
+
+# Check create validation
+assertError __err_invalid_value1 create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth1 -o network_name=services ipaddress=192.168.0.2 device_name=eth1 macaddress=AA:BB:CC:11:22:35 rx_ring_buffer=-1
+assertError __err_invalid_range create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth1 -o network_name=services ipaddress=192.168.0.2 device_name=eth1 macaddress=AA:BB:CC:11:22:35 rx_ring_buffer=2147483648
+assertError __err_invalid_value2 create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth1 -o network_name=services ipaddress=192.168.0.2 device_name=eth1 macaddress=AA:BB:CC:11:22:35 rx_ring_buffer="nope1"
+
+assertError __err_invalid_value1 create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth1 -o network_name=services ipaddress=192.168.0.2 device_name=eth1 macaddress=AA:BB:CC:11:22:35 tx_ring_buffer=-1
+assertError __err_invalid_range create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth1 -o network_name=services ipaddress=192.168.0.2 device_name=eth1 macaddress=AA:BB:CC:11:22:35 tx_ring_buffer=2147483648
+assertError __err_invalid_value2 create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth1 -o network_name=services ipaddress=192.168.0.2 device_name=eth1 macaddress=AA:BB:CC:11:22:35 tx_ring_buffer="nope1"
+
+# Check update validation
+assertError __err_invalid_value1 update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth0 -o rx_ring_buffer=-1
+assertError __err_invalid_range update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth0 -o rx_ring_buffer=2147483648
+assertError __err_invalid_value2 update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth0 -o rx_ring_buffer="nope1"
+
+assertError __err_invalid_value1 update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth0 -o tx_ring_buffer=-1
+assertError __err_invalid_range update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth0 -o tx_ring_buffer=2147483648
+assertError __err_invalid_value2 update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth0 -o tx_ring_buffer="nope1"

@@ -1,0 +1,22 @@
+# Setup
+litp create -t deployment -p /deployments/d1
+litp create -t cluster -p /deployments/d1/clusters/c1
+litp create -t node -p /deployments/d1/clusters/c1/nodes/n1 -o hostname=mn1
+
+
+let __err_props_set --err_type ValidationError --err_message 'Properties "ipaddress"/"ipv6address", "network_name", "bridge" and "bond" are not allowed when "pxe_boot_only" property is set to "true"'
+
+# Property ipaddress not allowed
+assertError __err_props_set create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth0 -o pxe_boot_only=true network_name=services ipaddress=192.168.0.1 device_name=eth0 macaddress=AA:BB:CC:11:22:34
+# Property ipv6address not allowed
+assertError __err_props_set create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth0 -o pxe_boot_only=true ipv6address=::192.168.0.1 device_name=eth0 macaddress=AA:BB:CC:11:22:34
+# Properties ipv6address and  ipaddres not allowed
+assertError __err_props_set create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth0 -o pxe_boot_only=true ipv6address=::192.168.0.1 ipaddress=192.168.0.1 device_name=eth0 macaddress=AA:BB:CC:11:22:34
+# Property network_name not allowed
+assertError __err_props_set create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth0 -o pxe_boot_only=true network_name=services device_name=eth0 macaddress=AA:BB:CC:11:22:34
+# Property bond not allowed
+assertError __err_props_set create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth0 -o pxe_boot_only=true device_name=eth0 macaddress=AA:BB:CC:11:22:34 master=bond0
+# Property bridge not allowed
+assertError __err_props_set create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth0 -o pxe_boot_only=true device_name=eth0 macaddress=AA:BB:CC:11:22:34 bridge=br0 network_name=services
+
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth0 -o pxe_boot_only=true device_name=eth0 macaddress=AA:BB:CC:11:22:34

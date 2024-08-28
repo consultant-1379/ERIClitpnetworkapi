@@ -1,0 +1,1 @@
+assertError --err_type MissingRequiredPropertyError --err_property 'name'  --err_message 'ItemType "network" is required to have a property with name "name"' create -p /infrastructure/networking/networks/test_network1 -t network

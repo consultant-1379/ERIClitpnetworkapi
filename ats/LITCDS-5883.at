@@ -1,0 +1,4 @@
+assertError create -p /infrastructure/networking/routes/traffic1_gw -t route -o subnet= gateway=10.19.51.20
+assertError create -p /infrastructure/networking/routes/traffic2_gw -t route -o subnet=bad_subnet gateway=10.20.51.20
+assertError create -p /infrastructure/networking/routes/traffic2_gw -t route -o subnet=172.16.0.0 gateway=10.20.51.20
+litp create -p /infrastructure/networking/routes/traffic2_gw -t route -o subnet=172.16.0.0/16 gateway=10.20.51.20

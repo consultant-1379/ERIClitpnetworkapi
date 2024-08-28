@@ -1,0 +1,26 @@
+## To ensure that it is not possible to specify, deploy and update a bridge
+## when multicast_querier properties value is negative. Note: Tested values
+## are min -1 step and maximum + 1 step values
+
+## Prerequisite - an existing bridge with allowed values
+litp create -t bridge -p /ms/network_interfaces/if6 -o device_name=br6 ipaddress=1.2.3.6 ipv6address=fccc::106 network_name=lo_priority multicast_router=2 multicast_querier=1 hash_max=64
+
+## 1. Create a bridge with multicast_querier property when the values are
+##    negative - lower range.
+## 2. Ensure generated validation messages correctness.
+let __err_no_negatives --err_type ValidationError --err_message "Invalid value '-1'. Value must be 0 (disabled) or 1 (enabled)"
+assertError __err_no_negatives create -t bridge -p /ms/network_interfaces/if7 -o device_name=br0 ipaddress=1.2.3.9 ipv6address=fccc::109 network_name=mgmt multicast_querier=-1
+
+## 3. Update the previously created bridge with multicast_querier property when
+##    the values are negative.
+assertError __err_no_negatives update -p /ms/network_interfaces/if6 -o multicast_querier=-1
+
+## 4. Create a bridge with multicast_querier property when the values are
+##    negative - upper range.
+## 5. Ensure generated validation messages correctness.
+let __err_no_nine --err_type ValidationError --err_message "Invalid value '2'. Value must be 0 (disabled) or 1 (enabled)"
+assertError __err_no_nine create -t bridge -p /ms/network_interfaces/if7 -o device_name=br0 ipaddress=1.2.3.9 ipv6address=fccc::109 network_name=mgmt multicast_querier=2
+
+## 6. Update the previously created bridge with multicast_querier property when
+##    the values are negative.
+assertError __err_no_nine update -p /ms/network_interfaces/if6 -o multicast_querier=2

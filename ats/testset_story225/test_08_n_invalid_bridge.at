@@ -1,0 +1,15 @@
+#Verify creating an item of type bridge with invalid values results in a validation error
+#assert MissingRequiredPropertyError with expected message is present
+
+let __err_a --err_type MissingRequiredPropertyError err_property 'device_name' --err_message 'ItemType "bridge" is required to have a property with name "device_name"'
+let __err_b --err_type MissingRequiredPropertyError err_property 'device_name' --err_message 'ItemType "bridge" is required to have a property with name "network_name"'
+
+assertError __err_a __err_b create -t bridge -p /ms/network_interfaces/br91
+
+#create bridge with invalid 'device_name' value
+#assert ValidationError with expected message is present
+assertError --err_type ValidationError --err_property "device_name" --err_message "Invalid value 'omega'. Value must be a valid Bridge device name" create -t bridge -p /ms/network_interfaces/br92 -o device_name='omega' network_name='test'
+
+#create bridge with 'br' as 'device_name'
+#assert ValidationError with expected message is present
+assertError --err_type ValidationError --err_property "device_name" --err_message "Invalid value 'br'. Value must be a valid Bridge device name" create -t bridge -p /ms/network_interfaces/br93 -o device_name='br' network_name='test'

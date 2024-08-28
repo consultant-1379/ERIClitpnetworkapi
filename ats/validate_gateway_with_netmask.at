@@ -1,0 +1,2 @@
+assertError create -t route  -p /infrastructure/networking/routes/default -o subnet="10.0.0.0/8" gateway="11.0.0.1/24"
+assertError create -t route6 -p /infrastructure/networking/routes/ipv6    -o subnet="2002::1/64" gateway=2001::1/32

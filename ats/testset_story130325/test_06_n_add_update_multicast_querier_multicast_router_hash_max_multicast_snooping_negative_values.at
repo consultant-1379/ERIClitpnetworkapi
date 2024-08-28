@@ -1,0 +1,44 @@
+## To ensure that it is not possible to specify, deploy and update a bridge
+## when hash_max properties value is negative. Note: Tested values are min -1
+## step and maximum + 1 step values (including power of two and not power of
+## two)
+
+## Prerequisite - an existing bridge with allowed values
+litp create -t bridge -p /ms/network_interfaces/if6 -o device_name=br6 ipaddress=1.2.3.6 ipv6address=fccc::106 network_name=lo_priority multicast_router=2 multicast_querier=1 hash_max=64
+
+
+let __err_msg_1_n_hash_max_lower  --err_type ValidationError --err_message "Value must be a power of two between 1 and 262144"
+let __err_msg_2_n_multicast_router  --err_type ValidationError --err_message "Value must be one of 0 (disabled), 1 (auto detect), or 2 (enabled)"
+let __err_msg_3_n_multicast_querier  --err_type ValidationError --err_message "Value must be 0 (disabled) or 1 (enabled)"
+let __err_msg_4_n_hash_max_upper  --err_type ValidationError --err_message 'Property value "262145" is not a power of two between 1 and 262144'
+
+## 1. Create a bridge with multicast_querier, hash_max and multicast_router
+##    properties when the values are negative - lower range.
+## 2. Ensure generated validation messages correctness.
+assertError __err_msg_1_n_hash_max_lower --err_property hash_max create -p /ms/network_interfaces/if7 -t bridge -o device_name=br0 ipaddress=1.2.3.9 ipv6address=fccc::109 network_name=mgmt multicast_snooping=1 hash_max=-1
+assertError __err_msg_2_n_multicast_router --err_property multicast_router create -p /ms/network_interfaces/if7 -t bridge -o device_name=br0 ipaddress=1.2.3.9 ipv6address=fccc::109 network_name=mgmt multicast_snooping=1 multicast_router=-1
+assertError __err_msg_3_n_multicast_querier --err_property multicast_querier create -p /ms/network_interfaces/if7 -t bridge -o device_name=br0 ipaddress=1.2.3.9 ipv6address=fccc::109 network_name=mgmt multicast_snooping=1 multicast_querier=-1
+
+## 3. Update the previously created bridge with querier_multicast, hash_max
+##    and multicast_router properties when the values are negative - lower
+##    range.
+## 4. Ensure generated validation messages correctness.
+assertError __err_msg_1_n_hash_max_lower --err_property hash_max update -p /ms/network_interfaces/if6 -o hash_max=-1
+assertError __err_msg_2_n_multicast_router --err_property multicast_router update -p /ms/network_interfaces/if6 -o multicast_router=-1
+assertError __err_msg_3_n_multicast_querier --err_property multicast_querier update -p /ms/network_interfaces/if6 -o multicast_querier=-1
+
+
+## 5. Create a bridge with multicast_querier, hash_max and multicast_router
+##    properties when the values are negative - upper range.
+## 6. Ensure generated validation messages correctness.
+assertError __err_msg_4_n_hash_max_upper --err_property hash_max create -p /ms/network_interfaces/if7 -t bridge -o device_name=br0 ipaddress=1.2.3.9 ipv6address=fccc::109 network_name=mgmt multicast_snooping=1 hash_max=262145
+assertError __err_msg_2_n_multicast_router --err_property multicast_router create -p /ms/network_interfaces/if7 -t bridge -o device_name=br0 ipaddress=1.2.3.9 ipv6address=fccc::109 network_name=mgmt multicast_snooping=1 multicast_router=3
+assertError __err_msg_3_n_multicast_querier --err_property multicast_querier create -p /ms/network_interfaces/if7 -t bridge -o device_name=br0 ipaddress=1.2.3.9 ipv6address=fccc::109 network_name=mgmt multicast_snooping=1 multicast_querier=2
+
+## 7. Update the previously created bridge with querier_multicast, hash_max
+##    and multicast_router properties when the values are negative - upper
+##    range.
+## 8. Ensure generated validation messages correctness.
+assertError __err_msg_4_n_hash_max_upper --err_property hash_max update -p /ms/network_interfaces/if6 -o hash_max=262145
+assertError __err_msg_2_n_multicast_router --err_property multicast_router update -p /ms/network_interfaces/if6 -o multicast_router=3
+assertError __err_msg_3_n_multicast_querier --err_property multicast_querier update -p /ms/network_interfaces/if6 -o multicast_querier=2

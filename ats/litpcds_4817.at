@@ -1,0 +1,27 @@
+litp create -t deployment -p /deployments/LITPCDS_4817
+litp create -t cluster -p /deployments/LITPCDS_4817/clusters/cluster1
+litp create -t node -p /deployments/LITPCDS_4817/clusters/cluster1/nodes/node1 -o hostname='node1'
+litp create -t eth -p /deployments/LITPCDS_4817/clusters/cluster1/nodes/node1/network_interfaces/if1 -o network_name='nodes' ipaddress='10.10.10.105' macaddress='08:00:27:24:8f:28' device_name='eth1'
+
+
+litp update -p /deployments/LITPCDS_4817/clusters/cluster1/nodes/node1/network_interfaces/if1 -o device_name='eth0'
+litp update -p /deployments/LITPCDS_4817/clusters/cluster1/nodes/node1/network_interfaces/if1 -o device_name='eth01'
+litp update -p /deployments/LITPCDS_4817/clusters/cluster1/nodes/node1/network_interfaces/if1 -o device_name='eth10'
+litp update -p /deployments/LITPCDS_4817/clusters/cluster1/nodes/node1/network_interfaces/if1 -o device_name='eth1120'
+litp update -p /deployments/LITPCDS_4817/clusters/cluster1/nodes/node1/network_interfaces/if1 -o device_name='eth'
+
+assertError update -p /deployments/LITPCDS_4817/clusters/cluster1/nodes/node1/network_interfaces/if1 -o device_name='eth2.3'
+assertError update -p /deployments/LITPCDS_4817/clusters/cluster1/nodes/node1/network_interfaces/if1 -o device_name='eth 0'
+
+assertError update -p /deployments/LITPCDS_4817/clusters/cluster1/nodes/node1/network_interfaces/if1 -o device_name='***'
+assertError update -p /deployments/LITPCDS_4817/clusters/cluster1/nodes/node1/network_interfaces/if1 -o device_name='123'
+assertError update -p /deployments/LITPCDS_4817/clusters/cluster1/nodes/node1/network_interfaces/if1 -o device_name='eth test'
+
+assertError update -p /deployments/LITPCDS_4817/clusters/cluster1/nodes/node1/network_interfaces/if1 -o device_name='DMZ'
+litp update -p /deployments/LITPCDS_4817/clusters/cluster1/nodes/node1/network_interfaces/if1 -o device_name='dmz'
+assertError update -p /deployments/LITPCDS_4817/clusters/cluster1/nodes/node1/network_interfaces/if1 -o device_name='1st_net'
+litp update -p /deployments/LITPCDS_4817/clusters/cluster1/nodes/node1/network_interfaces/if1 -o device_name='net1'
+
+
+assertError update -p /deployments/LITPCDS_4817/clusters/cluster1/nodes/node1/network_interfaces/if1 -o device_name='n123456789abcdef0'
+assertError update -p /deployments/LITPCDS_4817/clusters/cluster1/nodes/node1/network_interfaces/if1 -o device_name='n123456789abcdef'

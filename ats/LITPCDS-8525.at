@@ -1,0 +1,7 @@
+#Test to ensure that invalid ipv6 addresses (eg ipv4 addresses entered incorrectly) are validated against
+
+assertError create -t eth -p /ms/network_interfaces/if1 -o ipv6address='192.168.56.107' ipaddress='192.168.56.101' macaddress='08:00:27:23:6E:EC' device_name='eth1' network_name='mgmt'
+
+assertError create -t eth -p /ms/network_interfaces/if1 -o ipv6address=':192.168.56.107' ipaddress='192.168.56.101' macaddress='08:00:27:23:6E:EC' device_name='eth1' network_name='mgmt'
+
+litp create -t eth -p /ms/network_interfaces/if1 -o ipv6address=::192.168.56.107 ipaddress='192.168.56.101' macaddress='08:00:27:23:6E:EC' device_name='eth1' network_name='mgmt'

@@ -1,0 +1,100 @@
+# Setup
+litp create -t network -p /infrastructure/networking/networks/ms_network -o name='nodes' subnet='10.10.10.0/24' litp_management=true
+
+litp create -t deployment -p /deployments/d1
+litp create -t cluster -p /deployments/d1/clusters/c1
+litp create -t node -p /deployments/d1/clusters/c1/nodes/n1 -o hostname=mn1
+
+let __err_invalid_1 --err_type ValidationError --err_message "Property 'xmit_hash_policy' can only be set if the bond mode is one of '2, balance-xor, 4, 802.3ad'"
+let __err_invalid_2 --err_type ValidationError --err_message "Invalid value 'layerTwo'"
+
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth0 -o device_name=eth0 macaddress=AA:BB:CC:11:22:00 master=bond0
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth1 -o device_name=eth1 macaddress=AA:BB:CC:11:22:01 master=bond0
+
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=0 xmit_hash_policy=layer2
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=balance-rr xmit_hash_policy=layer2
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=1 xmit_hash_policy=layer2
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=active-backup xmit_hash_policy=layer2
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=3 xmit_hash_policy=layer2
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=broadcast xmit_hash_policy=layer2
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=5 xmit_hash_policy=layer2
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=balance-tlb xmit_hash_policy=layer2
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=6 xmit_hash_policy=layer2
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=balance-alb xmit_hash_policy=layer2
+
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=0 xmit_hash_policy=layer2+3
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=1 xmit_hash_policy=layer2+3
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=3 xmit_hash_policy=layer2+3
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=5 xmit_hash_policy=layer2+3
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=6 xmit_hash_policy=layer2+3
+
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=0 xmit_hash_policy=layer3+4
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=1 xmit_hash_policy=layer3+4
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=3 xmit_hash_policy=layer3+4
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=5 xmit_hash_policy=layer3+4
+assertError __err_invalid_1 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=6 xmit_hash_policy=layer3+4
+
+assertError __err_invalid_2 create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=802.3ad xmit_hash_policy=layerTwo
+litp create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o device_name=bond0 network_name=services ipaddress=192.168.0.1 mode=802.3ad xmit_hash_policy=layer2
+litp update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -o xmit_hash_policy=layer3+4
+litp update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond0 -d xmit_hash_policy
+
+
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth2 -o device_name=eth2 macaddress=AA:BB:CC:11:22:02 master=bond1
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth3 -o device_name=eth3 macaddress=AA:BB:CC:11:22:03 master=bond1
+litp create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond1 -o device_name=bond1 ipaddress=10.10.10.1 network_name=nodes mode=0
+assertError __err_invalid_1 update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond1 -o xmit_hash_policy=layer2
+
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth4 -o device_name=eth4 macaddress=AA:BB:CC:11:22:04 master=bond2
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth5 -o device_name=eth5 macaddress=AA:BB:CC:11:22:05 master=bond2
+litp create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond2 -o device_name=bond2 ipaddress=10.10.10.1 network_name=nodes mode=balance-rr
+assertError __err_invalid_1 update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond2 -o xmit_hash_policy=layer3+4
+
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth6 -o device_name=eth6 macaddress=AA:BB:CC:11:22:06 master=bond3
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth7 -o device_name=eth7 macaddress=AA:BB:CC:11:22:07 master=bond3
+litp create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond3 -o device_name=bond3 ipaddress=10.10.10.1 network_name=nodes mode=1
+assertError __err_invalid_1 update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond3 -o xmit_hash_policy=layer2
+
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth8 -o device_name=eth8 macaddress=AA:BB:CC:11:22:08 master=bond4
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth9 -o device_name=eth9 macaddress=AA:BB:CC:11:22:09 master=bond4
+litp create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond4 -o device_name=bond4 ipaddress=10.10.10.1 network_name=nodes mode=active-backup
+assertError __err_invalid_1 update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond4 -o xmit_hash_policy=layer2
+
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth10 -o device_name=eth10 macaddress=AA:BB:CC:11:22:08 master=bond5
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth11 -o device_name=eth11 macaddress=AA:BB:CC:11:22:09 master=bond5
+litp create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond5 -o device_name=bond5 ipaddress=10.10.10.1 network_name=nodes mode=3
+assertError __err_invalid_1 update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond5 -o xmit_hash_policy=layer2+3
+
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth12 -o device_name=eth12 macaddress=AA:BB:CC:11:22:10 master=bond6
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth13 -o device_name=eth13 macaddress=AA:BB:CC:11:22:11 master=bond6
+litp create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond6 -o device_name=bond6 ipaddress=10.10.10.1 network_name=nodes mode=broadcast
+assertError __err_invalid_1 update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond6 -o xmit_hash_policy=layer2
+
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth14 -o device_name=eth14 macaddress=AA:BB:CC:11:22:12 master=bond7
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth15 -o device_name=eth15 macaddress=AA:BB:CC:11:22:13 master=bond7
+litp create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond7 -o device_name=bond7 ipaddress=10.10.10.1 network_name=nodes mode=6
+assertError __err_invalid_1 update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond7 -o xmit_hash_policy=layer2
+
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth16 -o device_name=eth16 macaddress=AA:BB:CC:11:22:14 master=bond8
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth17 -o device_name=eth17 macaddress=AA:BB:CC:11:22:15 master=bond8
+litp create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond8 -o device_name=bond8 ipaddress=10.10.10.1 network_name=nodes mode=balance-alb
+assertError __err_invalid_1 update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond8 -o xmit_hash_policy=layer3+4
+
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth18 -o device_name=eth18 macaddress=AA:BB:CC:11:22:16 master=bond9
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth19 -o device_name=eth19 macaddress=AA:BB:CC:11:22:17 master=bond9
+litp create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond9 -o device_name=bond9 ipaddress=10.10.10.1 network_name=nodes mode=4 xmit_hash_policy=layer2
+litp update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond9 -o xmit_hash_policy=layer3+4
+litp update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond9 -d xmit_hash_policy
+
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth20 -o device_name=eth20 macaddress=AA:BB:CC:11:22:18 master=bond10
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth21 -o device_name=eth21 macaddress=AA:BB:CC:11:22:19 master=bond10
+litp create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond10 -o device_name=bond10 ipaddress=10.10.10.1 network_name=nodes mode=4 xmit_hash_policy=layer3+4
+assertError __err_invalid_2 update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond10 -o xmit_hash_policy=layerTwo
+
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth22 -o device_name=eth22 macaddress=AA:BB:CC:11:22:20 master=bond11
+litp create -t eth -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/eth23 -o device_name=eth23 macaddress=AA:BB:CC:11:22:21 master=bond11
+litp create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond11 -o device_name=bond11 ipaddress=10.10.10.1 network_name=nodes
+assertError __err_invalid_2 update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond11 -o xmit_hash_policy=layerTwo
+assertError __err_invalid_1 update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond11 -o xmit_hash_policy=layer3+4
+assertError __err_invalid_2 update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond11 -o mode=4 xmit_hash_policy=layerTwo
+litp update -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/bond11 -o mode=4 xmit_hash_policy=layer2+3

@@ -1,0 +1,12 @@
+# Setup
+litp create -t deployment -p /deployments/d1
+litp create -t cluster -p /deployments/d1/clusters/c1
+litp create -t node -p /deployments/d1/clusters/c1/nodes/n1 -o hostname=mn1
+
+
+# Incorrent mode for primary and primary_reselect 
+let __err_incorrect_mode --err_type ValidationError --err_message 'Properties "primary" and "primary_reselect" may only be set when property "mode" is set to one of 1, 5, 6, active-backup, balance-tlb, balance-alb'
+assertError __err_incorrect_mode create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if1 -o device_name=bond0 network_name=mgmt ipaddress='10.4.21.1' mode=2 primary=eth0 primary_reselect=2
+
+let __err_missing_primary_reselect --err_type ValidationError --err_message 'Properties "primary" and "primary_reselect" must both be specified.'
+assertError __err_missing_primary_reselect create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if1 -o device_name=bond0 network_name=mgmt ipaddress='10.4.21.1' mode=1 primary=eth0

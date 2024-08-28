@@ -1,0 +1,77 @@
+# Setup
+litp create -t deployment -p /deployments/d1
+litp create -t cluster -p /deployments/d1/clusters/c1
+litp create -t node -p /deployments/d1/clusters/c1/nodes/n1 -o hostname=mn1
+
+
+# Invalid value for arp_ip_target - >17 IP addresses
+let __err_excess_ip_target --err_type ValidationError --err_message 'Too many IPv4 addresses in address list'
+assertError __err_excess_ip_target create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if1 -o device_name=bond0 network_name=primary ipaddress='10.4.21.1' mode=1 arp_interval=100 arp_ip_target='10.10.10.100,10.10.10.101,10.10.10.102,10.10.10.103,10.10.10.104,10.10.10.105,10.10.10.106,10.10.10.107,10.10.10.108,10.10.10.109,10.10.10.110,10.10.10.111,10.10.10.112,10.10.10.113,10.10.10.114,10.10.10.115,10.10.10.116,10.10.10.117'
+
+# Invalid value for arp_ip_target - ipv6 address
+let __err_invalid_arp_ip_target --err_type ValidationError  --err_message 'Value must be a valid IPv4 address or up to 16 valid IPv4 addresses comma separated'
+assertError __err_invalid_arp_ip_target create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if1 -o device_name=bond0 network_name=primary ipaddress='10.4.21.1' mode=1 arp_interval=100 arp_ip_target="fdde:4d7e:d471:0001::835:72:74/64,fdde:4d7e:d471:0001::835:72:75/64"
+
+# Invalid value for arp_ip_target - duplicate IP address
+let __err_duplicate_arp_ip_target --err_type ValidationError  --err_message "Duplicate IP addresses are not permitted - '10.10.10.101'"
+assertError __err_duplicate_arp_ip_target create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if1 -o device_name=bond0 network_name=primary ipaddress='10.4.21.1' mode=1 arp_interval=100 arp_ip_target="10.10.10.100,10.10.10.101,10.10.10.101,10.10.10.102,10.10.10.103"
+
+# Invalid value for arp_ip_target - malformed IP address
+let __err_malformed_arp_ip_target --err_type ValidationError  --err_message "Invalid IP address(es) in '10.10.10'"
+assertError __err_malformed_arp_ip_target create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if1 -o device_name=bond0 network_name=primary ipaddress='10.4.21.1' mode=1 arp_interval=100 arp_ip_target="10.10.10"
+
+# 17+ Commas for arp_ip_target
+let __err_invalid_ip_target  --err_type ValidationError
+assertError __err_invalid_ip_target create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if2 -o mode=1 arp_interval=100 arp_ip_target=,,,,,,,,,,,,,,,,,,,, arp_validate=none arp_all_targets=any device_name='bond1'
+
+# Invalid value for arp_interval 
+let __err_invalid_arp_interval --err_type ValidationError --err_message "Invalid value 'inval1d'. Value must be a positive integer"
+assertError __err_invalid_arp_interval create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if1 -o device_name=bond0 network_name=primary ipaddress='10.4.21.1' mode=1 arp_interval="inval1d" arp_ip_target='10.10.10.100' arp_validate='any'
+
+# Invalid value for arp_interval 
+let __err_invalid_arp_interval --err_type ValidationError --err_message "Invalid value '-1'. Value must be a positive integer"
+assertError __err_invalid_arp_interval create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if1 -o device_name=bond0 network_name=primary ipaddress='10.4.21.1' mode=1 arp_interval="-1" arp_ip_target='10.10.10.100' arp_validate='any'
+
+# Invalid value for arp_interval
+let __err_invalid_arp_interval --err_type ValidationError --err_message 'Value outside range 0 - 2147483647'
+assertError __err_invalid_arp_interval create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if1 -o device_name=bond0 network_name=primary ipaddress='10.4.21.1' mode=1 arp_interval="2147483648" arp_ip_target='10.10.10.100' arp_validate='any'
+
+litp create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if1 -o device_name=bond0 network_name=primary ipaddress='10.4.21.1' mode=1 arp_interval="0" arp_ip_target='10.10.10.100'
+litp remove -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if1
+
+# Invalid value for arp_validate
+let __err_invalid_arp_validate --err_type ValidationError --err_message 'Value must be one of "none" or "0", "active" or "1", "backup" or "2", "all" or "3"'
+assertError __err_invalid_arp_validate create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if1 -o device_name=bond0 network_name=primary ipaddress='10.4.21.1' mode=1 arp_interval="100" arp_ip_target='10.10.10.100' arp_validate='invalid'
+
+# Invalid value for arp_all_targets
+let __err_invalid_arp_all_targets --err_type ValidationError --err_message 'Value must be one of "any" or "0", "all" or "1"'
+assertError __err_invalid_arp_all_targets create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if1 -o device_name=bond0 network_name=primary ipaddress='10.4.21.1' mode=1 arp_interval="100" arp_ip_target='10.10.10.100' arp_validate='any' arp_all_targets="invalid"
+
+# Miimon simultaneous with ARP properties
+let __err_miimon_clash --err_type ValidationError --err_message 'Properties "arp_interval", "arp_ip_target", "arp_validate" and "arp_all_targets" are not allowed if "miimon" is specified.'
+assertError __err_miimon_clash create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if1 -o device_name=bond0 network_name=primary ipaddress='10.4.21.1' mode=1 miimon='100' arp_ip_target='10.10.10.100'
+
+# Less than required ARP properties - ARP ip target but not interval
+let __err_missing_arp_target_or_interval --err_type ValidationError --err_message 'Properties "arp_interval" and "arp_ip_target" must both be specified'
+assertError  __err_missing_arp_target_or_interval create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if1 -o device_name=bond0 network_name=primary ipaddress='10.4.21.1' mode=1 arp_ip_target='10.10.10.100' 
+
+# ARP target, interval and validate specified, but not arp_all_targets
+let __err_missing_all_targets --err_type ValidationError --err_message 'Properties "arp_validate" and "arp_all_targets" must both be specified.'
+assertError __err_missing_all_targets create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if2 -o device_name=bond2 network_name=secondary ipaddress='10.4.22.2' mode=1 arp_ip_target='10.20.20.200' arp_interval=100 arp_validate=none
+
+# ARP interval, arp_all_targets and validate specified, but not arp_ip_target
+assertError __err_missing_arp_target_or_interval create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if2 -o device_name=bond2 network_name=secondary ipaddress='10.4.22.2' mode=1 arp_interval=100 arp_validate=none arp_all_targets="any"
+
+# ARP validate only supported in active backup mode
+let __err_arp_val_mode_not_one --err_type ValidationError --err_message '"arp_validate" is only supported with "mode" property set to "1" or "active-backup"'
+assertError __err_arp_val_mode_not_one create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if2 -o device_name=bond2 network_name=secondary ipaddress=10.4.22.2 mode=4 arp_ip_target='10.10.10.100' arp_interval=100 arp_validate=none arp_all_targets=any
+
+# ARP monitoring not supported with mode 4, 5, 6
+let __err_arp_monitoring_wrong_mode --err_type ValidationError --err_message 'ARP monitoring is only supported with "mode" property set to one of the following: "0", "balance-rr", "1", "active-backup", "2", "balance-xor", "3", "broadcast"'
+assertError  __err_arp_monitoring_wrong_mode create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if2 -o device_name=bond2 network_name=secondary ipaddress=10.4.22.2 mode=4 arp_ip_target='10.10.10.100' arp_interval=100
+
+# ARP target and interval both specified
+litp create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if1 -o device_name=bond0 network_name=primary ipaddress='10.4.21.1' mode=1 arp_ip_target='10.10.10.100' arp_interval=100
+
+# ARP target, interval, all_targets and validate specified
+litp create -t bond -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/if2 -o device_name=bond2 network_name=secondary ipaddress='10.4.22.2' mode=1 arp_ip_target='10.20.20.200' arp_interval=100 arp_validate=none arp_all_targets=all

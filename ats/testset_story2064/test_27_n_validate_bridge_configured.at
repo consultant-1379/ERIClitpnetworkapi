@@ -1,0 +1,5 @@
+## Verify a validation error occurs at creation of an eth item with invalid properties when 'bridge' property is specified
+
+# create eth with invalid combination of properties with 'bridge' specified
+
+assertError --err_type ValidationError --err_property "bridge" --err_message 'Properties "ipaddress"/"ipv6address" and "network_name" are not allowed if "bridge" is specified.' create -p /ms/network_interfaces/if2064 -t eth -o macaddress='00:50:56:00:00:81' device_name='eth2' bridge='br2064' ipv6address='0:0:0:0:0:ffff:a0a:a01'

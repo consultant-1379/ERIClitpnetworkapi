@@ -1,0 +1,21 @@
+# A few +ive cases
+litp create -t bridge -p /ms/network_interfaces/if1 -o device_name=br1 ipaddress=1.2.3.1 ipv6address=fccc::101 network_name=internal    multicast_router=0 multicast_querier=0 hash_max=16
+litp create -t bridge -p /ms/network_interfaces/if2 -o device_name=br2 ipaddress=1.2.3.2 ipv6address=fccc::102 network_name=backup      multicast_router=0 multicast_querier=1 hash_max=16
+litp create -t bridge -p /ms/network_interfaces/if3 -o device_name=br3 ipaddress=1.2.3.3 ipv6address=fccc::103 network_name=storage     multicast_router=1 multicast_querier=0 hash_max=32
+litp create -t bridge -p /ms/network_interfaces/if4 -o device_name=br4 ipaddress=1.2.3.4 ipv6address=fccc::104 network_name=external    multicast_router=1 multicast_querier=1 hash_max=32
+litp create -t bridge -p /ms/network_interfaces/if5 -o device_name=br5 ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=hi_priority multicast_router=2 multicast_querier=0 hash_max=64
+litp create -t bridge -p /ms/network_interfaces/if6 -o device_name=br6 ipaddress=1.2.3.6 ipv6address=fccc::106 network_name=lo_priority multicast_router=2 multicast_querier=1 hash_max=64
+
+# Now some -ive cases
+
+# multicast_querier should only be 0 or 1
+assertError create -t bridge -p /ms/network_interfaces/if7 -o device_name=br0 ipaddress=1.2.3.9 ipv6address=fccc::109 network_name=mgmt multicast_querier=9
+assertError create -t bridge -p /ms/network_interfaces/if7 -o device_name=br0 ipaddress=1.2.3.9 ipv6address=fccc::109 network_name=mgmt multicast_querier=bogus
+
+# multicast_router should only be 0 or 1 or 2
+assertError create -t bridge -p /ms/network_interfaces/if7 -o device_name=br0 ipaddress=1.2.3.9 ipv6address=fccc::109 network_name=mgmt multicast_router=9
+assertError create -t bridge -p /ms/network_interfaces/if7 -o device_name=br0 ipaddress=1.2.3.9 ipv6address=fccc::109 network_name=mgmt multicast_router=bogus
+
+# hash_max should be non-zero power-of-two
+let __err1_invalid_hash_max --err_type ValidationError --err_message 'Property value "5" is not a power of two'
+assertError __err1_invalid_hash_max create -t bridge -p /ms/network_interfaces/if7 -o device_name=br0 ipaddress=1.2.3.9 ipv6address=fccc::109 network_name=mgmt hash_max=5

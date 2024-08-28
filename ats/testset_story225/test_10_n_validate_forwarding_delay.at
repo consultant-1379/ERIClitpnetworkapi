@@ -1,0 +1,24 @@
+## Validate the 'forwarding_delay' property (must be between 0-300)
+
+#create network item
+litp create -t network -p /infrastructure/networking/networks/test_network225 -o name='test' subnet='10.10.10.0/24'
+
+#create bridge with an invalid forwarding_delay value '-1'
+#assert create ValidationError with expected message is present
+
+assertError --err_type ValidationError --err_property "forwarding_delay" --err_message "Invalid value '-1'. Value must be a positive integer" create -t bridge -p /ms/network_interfaces/br225 -o device_name='br225' ipaddress='10.10.10.2' forwarding_delay='-1' stp='true' network_name='test'
+
+#create bridge with an invalid forwarding_delay value '31'
+#assert create ValidationError with expected message is present
+
+assertError --err_type ValidationError --err_property "forwarding_delay" --err_message "Value outside range 4 - 30" create -t bridge -p /ms/network_interfaces/br225 -o device_name='br225' ipaddress='10.10.10.2' forwarding_delay='31' stp='true' network_name='test'
+assertError --err_type ValidationError --err_property "forwarding_delay" --err_message "Value outside range 4 - 30" create -t bridge -p /ms/network_interfaces/br225 -o device_name='br225' ipaddress='10.10.10.2' forwarding_delay=3 stp='true' network_name='test'
+
+#create bridge with an invalid forwarding_delay value 'test'
+#assert create ValidationError with expected message is present
+
+assertError --err_type ValidationError --err_property "forwarding_delay" --err_message "Invalid value 'test'. Value must be a positive integer" create -t bridge -p /ms/network_interfaces/br225 -o device_name='br225' ipaddress='10.10.10.2' forwarding_delay='test' stp='true' network_name='test'
+
+#create bridge with an default forwarding_delay. Default value is 4
+litp create -t bridge -p /ms/network_interfaces/br225 -o device_name='br225' ipaddress='10.10.10.2' stp='true' network_name='test'
+assertProperty /ms/network_interfaces/br225 -o forwarding_delay=4

@@ -1,0 +1,17 @@
+litp create -t storage-profile-base -p /infrastructure/storage/storage_profiles/profile_1
+litp create -t os-profile -p /software/profiles/rhel_6_2 -o name='node-iso' path='/profiles/node-iso/'
+
+litp create -t network -p /infrastructure/networking/networks/ms_network -o name='nodes' subnet='10.10.10.0/24' litp_management=true
+
+litp create -t deployment -p /deployments/local_vm
+litp create -t cluster -p /deployments/local_vm/clusters/cluster1
+litp create -t node -p /deployments/local_vm/clusters/cluster1/nodes/node1 -o hostname='node1'
+litp create -t eth -p /deployments/local_vm/clusters/cluster1/nodes/node1/network_interfaces/if1 -o device_name='eth1' network_name='nodes' ipaddress='10.10.10.105' macaddress='08:00:27:24:8f:28'
+litp create -t eth -p /deployments/local_vm/clusters/cluster1/nodes/node1/network_interfaces/if2 -o device_name='eth2' network_name='nodes' macaddress='08:00:27:24:8f:29'
+
+litp inherit -p /deployments/local_vm/clusters/cluster1/nodes/node1/storage_profile -s /infrastructure/storage/storage_profiles/profile_1
+litp inherit -p /deployments/local_vm/clusters/cluster1/nodes/node1/os -s /software/profiles/rhel_6_2
+
+# TODO (xigomil) Not sure how to replace these assertions atm.
+# assertError update -p /infrastructure/networking/network_profiles/nodes/networks/mynetwork -o logical_if_view='bad'
+# assertError create -t network-old -p /infrastructure/networking/network_profiles/nodes/networks/badnetwork -o logical_if_view='bad'

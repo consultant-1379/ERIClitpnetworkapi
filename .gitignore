@@ -1,0 +1,11 @@
+*.pyc
+*.swp
+target
+.coverage
+coverage.xml
+nosetests.xml
+.project
+.pydevproject
+tags
+
+*.orig

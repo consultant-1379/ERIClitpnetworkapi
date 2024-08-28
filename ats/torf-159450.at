@@ -1,0 +1,78 @@
+
+let __err1_out_of_range_hash_elasticity --err_type ValidationError --err_message "Value outside range 0 - 4294967295"
+let __err2_invalid_hash_elasticity      --err_type ValidationError --err_message "Invalid value '-1'. Value must be an integer between 0 and 4294967295"
+let __err3_invalid_hash_elasticity      --err_type ValidationError --err_message "Invalid value 'fds54'. Value must be an integer between 0 and 4294967295"
+let __err4_invalid_hash_elasticity      --err_type ValidationError --err_message "Invalid value '*'. Value must be an integer between 0 and 4294967295"
+
+# test_06_AC6_N_update_hash_elasticity_illegal.AT
+litp create -t bridge -p /ms/network_interfaces/br0 -o device_name=br0 ipaddress=1.2.3.4 ipv6address=fccc::101 network_name=net1 hash_elasticity=64
+
+assertError __err1_out_of_range_hash_elasticity update -p /ms/network_interfaces/br0 -o hash_elasticity=4294967296
+assertError __err2_invalid_hash_elasticity      update -p /ms/network_interfaces/br0 -o hash_elasticity=-1
+assertError __err3_invalid_hash_elasticity      update -p /ms/network_interfaces/br0 -o hash_elasticity=fds54
+assertError __err4_invalid_hash_elasticity      update -p /ms/network_interfaces/br0 -o hash_elasticity='*'
+
+#test_07_N_AC6_create_hash_elasticity_invalid.AT
+
+assertError __err1_out_of_range_hash_elasticity create -t bridge -p /ms/network_interfaces/br1 -o device_name=br1 ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 hash_elasticity=4294967296
+assertError __err2_invalid_hash_elasticity      create -t bridge -p /ms/network_interfaces/br1 -o device_name=br1 ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 hash_elasticity=-1
+assertError __err3_invalid_hash_elasticity      create -t bridge -p /ms/network_interfaces/br1 -o device_name=br1 ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 hash_elasticity=fds54
+assertError __err4_invalid_hash_elasticity      create -t bridge -p /ms/network_interfaces/br1 -o device_name=br1 ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 hash_elasticity='*'
+
+
+# test_08_AC7_N_create_ipv6_autoconf_illegal.AT
+# ipv6_autoconf must be true ot false
+
+let __err1_invalid_ipv6_autoconf --err_type ValidationError --err_message "Invalid value 'tru'"
+assertError __err1_invalid_ipv6_autoconf create -t eth    -p /ms/network_interfaces/if -o device_name=eth0    macaddress='08:00:27:85:EE:11' ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 ipv6_autoconf=tru
+assertError __err1_invalid_ipv6_autoconf create -t bond   -p /ms/network_interfaces/if -o device_name=bond0   ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 ipv6_autoconf=tru
+assertError __err1_invalid_ipv6_autoconf create -t bridge -p /ms/network_interfaces/if -o device_name=br0     ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 ipv6_autoconf=tru
+assertError __err1_invalid_ipv6_autoconf create -t vlan   -p /ms/network_interfaces/if -o device_name=vlan123 ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 ipv6_autoconf=tru
+
+let __err2_invalid_ipv6_autoconf --err_type ValidationError --err_message "Invalid value '*'"
+assertError __err2_invalid_ipv6_autoconf create -t eth    -p /ms/network_interfaces/if -o device_name=eth0    macaddress='08:00:27:85:EE:11' ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 ipv6_autoconf='*'
+assertError __err2_invalid_ipv6_autoconf create -t bond   -p /ms/network_interfaces/if -o device_name=bond0   ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 ipv6_autoconf='*'
+assertError __err2_invalid_ipv6_autoconf create -t bridge -p /ms/network_interfaces/if -o device_name=br0     ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 ipv6_autoconf='*'
+assertError __err2_invalid_ipv6_autoconf create -t vlan   -p /ms/network_interfaces/if -o device_name=vlan123 ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 ipv6_autoconf='*'
+
+let __err3_invalid_ipv6_autoconf --err_type ValidationError --err_message "Invalid value '1'"
+assertError __err3_invalid_ipv6_autoconf create -t eth    -p /ms/network_interfaces/if -o device_name=eth0    macaddress='08:00:27:85:EE:11' ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 ipv6_autoconf=1
+assertError __err3_invalid_ipv6_autoconf create -t bond   -p /ms/network_interfaces/if -o device_name=bond0   ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 ipv6_autoconf=1
+assertError __err3_invalid_ipv6_autoconf create -t bridge -p /ms/network_interfaces/if -o device_name=br0     ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 ipv6_autoconf=1
+assertError __err3_invalid_ipv6_autoconf create -t vlan   -p /ms/network_interfaces/if -o device_name=vlan123 ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 ipv6_autoconf=1
+
+let __err4_invalid_ipv6_autoconf --err_type ValidationError --err_message "Invalid value '0'"
+assertError __err4_invalid_ipv6_autoconf create -t eth    -p /ms/network_interfaces/if -o device_name=eth0    macaddress='08:00:27:85:EE:11' ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 ipv6_autoconf=0
+assertError __err4_invalid_ipv6_autoconf create -t bond   -p /ms/network_interfaces/if -o device_name=bond0   ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 ipv6_autoconf=0
+assertError __err4_invalid_ipv6_autoconf create -t bridge -p /ms/network_interfaces/if -o device_name=br0     ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 ipv6_autoconf=0
+assertError __err4_invalid_ipv6_autoconf create -t vlan   -p /ms/network_interfaces/if -o device_name=vlan123 ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 ipv6_autoconf=0
+
+# Make a successful setup to play with below
+litp create -t eth    -p /ms/network_interfaces/eth0  -o device_name=eth0     ipaddress=1.2.3.5 ipv6address=fccc::105 network_name=net2 ipv6_autoconf=true macaddress=08:00:27:85:EE:11 
+litp create -t bond   -p /ms/network_interfaces/bond0 -o device_name=bond0    ipaddress=1.2.3.6 ipv6address=fccc::106 network_name=net3 ipv6_autoconf=true
+litp create -t bridge -p /ms/network_interfaces/br1   -o device_name=br1      ipaddress=1.2.3.7 ipv6address=fccc::107 network_name=net4 ipv6_autoconf=true
+litp create -t vlan   -p /ms/network_interfaces/vlan0 -o device_name=vlan.123 ipaddress=1.2.3.8 ipv6address=fccc::108 network_name=net5 ipv6_autoconf=true
+
+
+# test_09_AC6_N_update_ipv6_autoconf_illegal.AT
+# Now try some updates
+
+assertError __err1_invalid_ipv6_autoconf update -p /ms/network_interfaces/eth0  -o ipv6_autoconf=tru
+assertError __err1_invalid_ipv6_autoconf update -p /ms/network_interfaces/bond0 -o ipv6_autoconf=tru
+assertError __err1_invalid_ipv6_autoconf update -p /ms/network_interfaces/br1   -o ipv6_autoconf=tru
+assertError __err1_invalid_ipv6_autoconf update -p /ms/network_interfaces/vlan0 -o ipv6_autoconf=tru
+
+assertError __err2_invalid_ipv6_autoconf update -p /ms/network_interfaces/eth0  -o ipv6_autoconf='*'
+assertError __err2_invalid_ipv6_autoconf update -p /ms/network_interfaces/bond0 -o ipv6_autoconf='*'
+assertError __err2_invalid_ipv6_autoconf update -p /ms/network_interfaces/br1   -o ipv6_autoconf='*'
+assertError __err2_invalid_ipv6_autoconf update -p /ms/network_interfaces/vlan0 -o ipv6_autoconf='*'
+
+assertError __err3_invalid_ipv6_autoconf update -p /ms/network_interfaces/eth0  -o ipv6_autoconf=1
+assertError __err3_invalid_ipv6_autoconf update -p /ms/network_interfaces/bond0 -o ipv6_autoconf=1
+assertError __err3_invalid_ipv6_autoconf update -p /ms/network_interfaces/br1   -o ipv6_autoconf=1
+assertError __err3_invalid_ipv6_autoconf update -p /ms/network_interfaces/vlan0 -o ipv6_autoconf=1
+
+assertError __err4_invalid_ipv6_autoconf update -p /ms/network_interfaces/eth0  -o ipv6_autoconf=0
+assertError __err4_invalid_ipv6_autoconf update -p /ms/network_interfaces/bond0 -o ipv6_autoconf=0
+assertError __err4_invalid_ipv6_autoconf update -p /ms/network_interfaces/br1   -o ipv6_autoconf=0
+assertError __err4_invalid_ipv6_autoconf update -p /ms/network_interfaces/vlan0 -o ipv6_autoconf=0

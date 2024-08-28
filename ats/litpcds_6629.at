@@ -1,0 +1,10 @@
+# Setup
+litp create -t deployment -p /deployments/d1
+litp create -t cluster    -p /deployments/d1/clusters/c1
+litp create -t node       -p /deployments/d1/clusters/c1/nodes/n1 -o hostname=mn1
+
+#can't create a vlan without a network_name unless it is bridged
+assertError create -t vlan -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/vlan123 -o device_name=vlan.123
+
+#can't create a vlan without a network_name if it has an ip address
+assertError create -t vlan -p /deployments/d1/clusters/c1/nodes/n1/network_interfaces/vlan123 -o device_name=vlan.123 -o ipaddress=20.20.20.10

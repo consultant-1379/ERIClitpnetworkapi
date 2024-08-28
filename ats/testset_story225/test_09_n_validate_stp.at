@@ -1,0 +1,9 @@
+## Verify validation error when setting stp property to an invalid value
+
+#create network item
+litp create -t network -p /infrastructure/networking/networks/test_network225 -o name='test' subnet='10.10.10.0/24'
+
+#create bridge with invalid 'stp' property value 'test'
+#assert create_plan ValidationError with expected message is present
+
+assertError --err_type ValidationError --err_property "stp" --err_message "Invalid value 'test'." create -t bridge -p /ms/network_interfaces/br225 -o device_name='br225' ipaddress='10.10.10.2' forwarding_delay='0' stp='test' network_name='test'

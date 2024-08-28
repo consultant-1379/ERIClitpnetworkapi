@@ -1,0 +1,11 @@
+litp create -t route -p /infrastructure/networking/routes/boo -o subnet="10.0.0.0/0" gateway="10.0.0.1"
+litp create -t route -p /infrastructure/networking/routes/foo -o subnet="192.168.1.1/0" gateway="192.168.1.254"
+litp create -t route -p /infrastructure/networking/routes/bar -o subnet="0.0.0.0/0" gateway="10.0.0.1"
+
+litp create -t deployment -p /deployments/d1
+litp create -t cluster    -p /deployments/d1/clusters/c1 
+litp create -t node       -p /deployments/d1/clusters/c1/nodes/n1 -o hostname="mynode"
+
+litp inherit -p /deployments/d1/clusters/c1/nodes/n1/routes/default -s /infrastructure/networking/routes/bar
+litp inherit -p /deployments/d1/clusters/c1/nodes/n1/routes/management -s /infrastructure/networking/routes/foo
+litp inherit -p /deployments/d1/clusters/c1/nodes/n1/routes/backup -s /infrastructure/networking/routes/boo
